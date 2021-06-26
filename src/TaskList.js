@@ -2,7 +2,7 @@ import PouchyStore from 'pouchy-store';
 
 class TaskList extends PouchyStore {
     get name() {
-        return 'task_list';
+        return this._name;
     }
     get urlRemote() {
         return 'http://13.250.43.79:5984/';
@@ -16,6 +16,9 @@ class TaskList extends PouchyStore {
             }
         }
     }
+    setName(userId) {
+        this._name = `task_list_${userId}`;
+      }
 }
 
 export default new TaskList();

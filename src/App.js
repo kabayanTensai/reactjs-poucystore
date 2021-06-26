@@ -1,11 +1,12 @@
 import React from 'react';
-
 import taskList from './TaskList';
 import user from './User';
+import { v4 as uuidv4 } from 'uuid';
 
 
-window.user = user;
-window.taskList = taskList;
+
+
+
 class BaseComponent extends React.PureComponent {
   rerender = () => {
     this.setState({
@@ -15,7 +16,6 @@ class BaseComponent extends React.PureComponent {
 }
 
 class App extends BaseComponent {
-
   state = {
     isInitialized: false,
   }
@@ -25,7 +25,7 @@ class App extends BaseComponent {
       return null;
     }
     return (
-      user.data.email ? (
+      user.data.username ? (
         <Home />
       ) : (
         <Login />
@@ -42,7 +42,8 @@ class App extends BaseComponent {
   }
 
   async componentDidUpdate() {
-    if (user.data.email && !taskList.isInitialized) {
+    if (user.data.username && !taskList.isInitialized) {
+      taskList.setName(user.data.id);
       await taskList.initialize();
 
     }
@@ -62,7 +63,7 @@ class Login extends BaseComponent {
       <form onSubmit={this.submit}>
         <h1>login</h1>
         <p>
-          Username <input type='text' name="username" value={this.state.username} onChange={this.setInput_email} />
+          Username <input type='text' name="username" value={this.state.username} onChange={this.setInputUsername} />
         </p>
         <p>
           <button>submit</button>
@@ -71,7 +72,7 @@ class Login extends BaseComponent {
     );
   }
 
-  setInput_email = (event) => {
+  setInputUsername = (event) => {
     this.setState({
       username: event.target.value,
     });
@@ -79,10 +80,11 @@ class Login extends BaseComponent {
 
   submit = async (event) => {
     event.preventDefault();
-    let id = this.state.username;
+    let id = this.state.username
+    console.log(id);
     await user.editSingle({
       id,
-      email: this.state.username,
+      username: this.state.username,
     });
   }
 }
@@ -97,19 +99,9 @@ class Home extends BaseComponent {
   render() {
     return (
       <div>
-        <h2>Form new todo</h2>
-        <form onSubmit={this.submitFormTaskList}>
-          <input type="hidden" name="id" value={this.state.id} onChange={this.taskFormField} />
-          Task : <input name="task" type='text' value={this.state.task} onChange={this.taskFormField} /> <br></br>
-          Tag : <input name="tag" type='text' value={this.state.tag} onChange={this.taskFormField} /> <br></br>
-          Status:
-          <select name="status" value={this.state.status} onChange={this.taskFormField}>
-            <option value="finished">Finished</option>
-            <option value="unfinished">Unfinished</option>
-          </select>
-          <br />
-          <button>submit</button>
-        </form>
+        <p>
+          halo {user.data.username} <button onClick={this.logout}>logout</button>
+        </p>
         <h1>
           Task List
         </h1>
@@ -143,6 +135,19 @@ class Home extends BaseComponent {
             ))
           }
         </ul>
+        <h2>Form new todo</h2>
+        <form onSubmit={this.submitFormTaskList}>
+          <input type="hidden" name="id" value={this.state.id} onChange={this.taskFormField} />
+          Task : <input name="task" type='text' value={this.state.task} onChange={this.taskFormField} /> <br></br>
+          Tag : <input name="tag" type='text' value={this.state.tag} onChange={this.taskFormField} /> <br></br>
+          Status:
+          <select name="status" value={this.state.status} onChange={this.taskFormField}>
+            <option value="finished">Finished</option>
+            <option value="unfinished">Unfinished</option>
+          </select>
+          <br />
+          <button>submit</button>
+        </form>
       </div>
     );
   }
@@ -177,6 +182,7 @@ class Home extends BaseComponent {
         task: this.state.task,
         tag: this.state.tag,
         status: this.state.status,
+        created: new Date(),
       }, user.data);
       this.setState({ task: '', tag: '', status: '' });
     } else {
