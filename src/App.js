@@ -54,7 +54,7 @@ class App extends BaseComponent {
 
 class Login extends BaseComponent {
   state = {
-    email: '',
+    username: '',
   }
 
   render() {
@@ -62,7 +62,7 @@ class Login extends BaseComponent {
       <form onSubmit={this.submit}>
         <h1>login</h1>
         <p>
-          email <input type='text' value={this.state.email} onChange={this.setInput_email} />
+          Username <input type='text' name="username" value={this.state.username} onChange={this.setInput_email} />
         </p>
         <p>
           <button>submit</button>
@@ -73,28 +73,16 @@ class Login extends BaseComponent {
 
   setInput_email = (event) => {
     this.setState({
-      email: (event.target.value || '').trim(),
+      username: event.target.value,
     });
   }
 
   submit = async (event) => {
     event.preventDefault();
-
-    if (!this.state.email) {
-      alert('gunakan email @gmail');
-      return;
-    }
-    if (!this.state.email.endsWith('@gmail.com')) {
-      alert('gunakan email @gmail.com');
-      return;
-    }
-
-    let id = this.state.email;
-    id = id.split('@').shift().replace(/\W/g, '');
-
+    let id = this.state.username;
     await user.editSingle({
       id,
-      email: this.state.email,
+      email: this.state.username,
     });
   }
 }
